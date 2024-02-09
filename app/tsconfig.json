@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+      //"declaration": true,
+      "module": "commonjs",
+      "target": "es6",
+      "noImplicitAny": false,
+      "sourceMap": true,
+      "esModuleInterop": true,
+      "jsx": "react",
+      //"allowJs": true,
+      //"checkJs": true,
+      "skipLibCheck": true,
+      "moduleResolution": "node",
+      "resolveJsonModule" : true,
+      "skipDefaultLibCheck": true,
+      "experimentalDecorators": true,
+      "allowSyntheticDefaultImports": true,
+      "typeRoots": ["node_modules/@types"],
+      "lib": ["dom", "es6"],
+      "baseUrl": ".",
+      "paths": {
+          "src/*": ["src/*"],
+          "assets/*": ["assets/*"],
+          "pages/*": ["src/pages/*"],
+          "security/*": ["src/security/*"],
+          "store/*": ["src/store/*"],
+          "cmp/*": ["src/components/*"],
+          "api/*": ["src/api/*"],
+          "common/*": ["src/common/*"],
+          "react-router-dom/*": ["node_modules/@types/react-router-dom/*"]
+      },
+      "plugins": [
+        {
+          "name": "typescript-plugin-css-modules",
+          "options": {
+            "classnameTransform": "camelCase",
+            "customMatcher": "\\.(c|le|sa|sc)ss$",
+            "customRenderer": "false",
+            "customTemplate": "false",
+            "dotenvOptions": {},
+            "postCssOptions": {},
+            "rendererOptions": {}
+          }
+        }
+      ]
+  },
+  "exclude": ["node_modules"]
+}
