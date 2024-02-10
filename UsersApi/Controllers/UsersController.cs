@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using UsersApi.Domain;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+
 namespace UsersApi.Controllers
 {
     [ApiController]
@@ -10,10 +14,14 @@ namespace UsersApi.Controllers
 
     public class UsersController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        public UsersController(IConfiguration configuration)
+        private readonly IUserService _userService;
+        private readonly IPositionService _positionService;
+        private readonly ILogger<UsersController> _logger;
+        public UsersController(UserService userService, PositionService positionService, ILogger<UsersController> logger)
         {
-            _configuration = configuration;
+            _userService = userService;
+            _positionService = positionService;
+            _logger = logger;
         }
 
         [Route("list")]
@@ -24,24 +32,37 @@ namespace UsersApi.Controllers
                 Users = new List<UserDto>()
             };
 
-            var userService = new UserService(_configuration);
-            var users = userService.GetAll();
-            response.Total = users.Count;
-            for (int i = 0; i < users.Count; i++)
+            try
             {
-                var user = users[i];
-                var dto = new UserDto
+                var users = _userService.GetAll();
+                response.Total = users.Count;
+                foreach (var user in users)
                 {
-                    Id = user.Id,
-                    Login = user.Login,
-                    Name = user.Name
-                };
-                var position = new PositionService(_configuration).GetById(user.PositionId);
-                dto.Position = position.Name;
-                dto.DefaultSalary = position.DefaultSalary;
-                response.Users.Add(dto);
+                    var dto = new UserDto
+                    {
+                        Id = user.Id,
+                        Login = user.Login,
+                        Name = user.Name
+                    };
+                    try
+                    {
+                        var position = _positionService.GetById(user.PositionId);
+                        dto.Position = position?.Name;
+                        dto.DefaultSalary = position?.DefaultSalary ?? 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Ошибка при получении должности для пользователя {user.Id}");
+                    }
+                    response.Users.Add(dto);
+                }
+                return Ok(response);
             }
-            return Ok(response);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении списка пользователей");
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
     }
 }

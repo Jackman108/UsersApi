@@ -8,13 +8,13 @@ interface IEnvironmentSetting {
 
 const devSettings: IEnvironmentSetting = {
     apiUrl: {
-        [HttpModule.Users]: 'http://localhost:5001/api/users'
+        [HttpModule.Users]: 'http://localhost:5001/api/users/list'
     }
 };
 
 const settings: IEnvironmentSetting = {
     apiUrl: {
-        [HttpModule.Users]: 'http://localhost:5001/api/users'
+        [HttpModule.Users]: 'http://localhost:5001/api/users/list'
     }
 };
 

@@ -6,22 +6,30 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using UsersApi.Domain;
+using Microsoft.Extensions.Configuration;
 
 namespace UsersApi
 {
     public class Startup
     {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; } 
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddCors(options =>
-                        {
-                            options.AddPolicy("AllowSpecificOrigin",
-                                builder => builder
-                                .WithOrigins("http://localhost:3004")
-                                .AllowAnyMethod()
-                                .AllowAnyHeader());
-                        });
+            {
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
 
             var conventionPack = new ConventionPack
             {
@@ -30,14 +38,11 @@ namespace UsersApi
             };
             ConventionRegistry.Register("camelCase", conventionPack, t => true);
 
-            BsonClassMap.RegisterClassMap<User>(m =>
-            {
-                m.AutoMap();
-            });
-            BsonClassMap.RegisterClassMap<Position>(m =>
-            {
-                m.AutoMap();
-            });
+            BsonClassMap.RegisterClassMap<User>(m => m.AutoMap());
+            BsonClassMap.RegisterClassMap<Position>(m => m.AutoMap());
+
+            services.AddSingleton<UserService>();
+            services.AddSingleton<PositionService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
